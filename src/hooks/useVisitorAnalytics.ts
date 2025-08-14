@@ -41,8 +41,7 @@ export const useVisitorAnalytics = () => {
           pagePath: window.location.pathname,
           userAgent: navigator.userAgent,
           referrer: document.referrer
-        },
-        method: 'POST'
+        }
       });
 
       if (error) {
@@ -57,9 +56,7 @@ export const useVisitorAnalytics = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('visitor-analytics', {
-        method: 'GET'
-      });
+      const { data, error } = await supabase.functions.invoke('visitor-analytics');
 
       if (error) {
         setError(error.message);

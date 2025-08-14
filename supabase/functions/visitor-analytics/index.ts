@@ -18,12 +18,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const url = new URL(req.url);
-    const action = url.searchParams.get('action');
-
-    if (req.method === 'POST' && action === 'track') {
+    if (req.method === 'POST') {
       // Track a new visit
       const { sessionId, pagePath, userAgent, referrer } = await req.json();
+      
+      console.log('Tracking visit for session:', sessionId);
       
       const { error } = await supabase
         .from('page_visits')
@@ -42,83 +41,91 @@ serve(async (req) => {
         });
       }
 
+      console.log('Successfully tracked visit');
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    if (req.method === 'GET' && action === 'stats') {
+    if (req.method === 'GET') {
       // Get visitor statistics
+      console.log('Fetching visitor statistics');
+      
       const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
-      // Total visitors (unique sessions)
-      const { data: totalData, error: totalError } = await supabase
+      // Get all visits from the last 7 days
+      const { data: allVisits, error: visitsError } = await supabase
         .from('page_visits')
-        .select('session_id')
-        .gte('created_at', sevenDaysAgo.toISOString());
+        .select('session_id, created_at')
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: false });
 
-      if (totalError) {
-        console.error('Error fetching total stats:', totalError);
-        return new Response(JSON.stringify({ error: totalError.message }), {
+      if (visitsError) {
+        console.error('Error fetching visits:', visitsError);
+        return new Response(JSON.stringify({ error: visitsError.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      const uniqueVisitors = new Set(totalData?.map(v => v.session_id) || []).size;
+      console.log('Found visits:', allVisits?.length || 0);
 
-      // Daily stats for the last 7 days
-      const dailyStatsQuery = `
-        SELECT 
-          DATE(created_at) as date,
-          COUNT(DISTINCT session_id) as visitors,
-          COUNT(*) as views
-        FROM page_visits 
-        WHERE created_at >= $1
-        GROUP BY DATE(created_at)
-        ORDER BY date DESC
-      `;
+      // Calculate unique visitors
+      const uniqueVisitors = new Set(allVisits?.map(v => v.session_id) || []).size;
+      
+      // Calculate recent visitors (last hour)
+      const recentVisits = allVisits?.filter(visit => 
+        new Date(visit.created_at) >= oneHourAgo
+      ) || [];
+      const recentVisitors = new Set(recentVisits.map(v => v.session_id)).size;
 
-      const { data: dailyData, error: dailyError } = await supabase.rpc('execute_sql', {
-        query: dailyStatsQuery,
-        params: [sevenDaysAgo.toISOString()]
+      // Group by day for daily stats
+      const dailyGroups: { [key: string]: Set<string> } = {};
+      allVisits?.forEach(visit => {
+        const date = new Date(visit.created_at).toISOString().split('T')[0];
+        if (!dailyGroups[date]) {
+          dailyGroups[date] = new Set();
+        }
+        dailyGroups[date].add(visit.session_id);
       });
 
-      // Hourly stats for today
-      const hourlyStatsQuery = `
-        SELECT 
-          EXTRACT(HOUR FROM created_at) as hour,
-          COUNT(DISTINCT session_id) as visitors,
-          COUNT(*) as views
-        FROM page_visits 
-        WHERE created_at >= $1
-        GROUP BY EXTRACT(HOUR FROM created_at)
-        ORDER BY hour
-      `;
+      const dailyStats = Object.entries(dailyGroups)
+        .map(([date, sessionIds]) => ({
+          date,
+          visitors: sessionIds.size
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
 
-      const { data: hourlyData, error: hourlyError } = await supabase.rpc('execute_sql', {
-        query: hourlyStatsQuery,
-        params: [today.toISOString()]
+      // Group by hour for today's hourly stats
+      const today = new Date().toISOString().split('T')[0];
+      const todayVisits = allVisits?.filter(visit => 
+        visit.created_at.startsWith(today)
+      ) || [];
+      
+      const hourlyGroups: { [key: number]: Set<string> } = {};
+      todayVisits.forEach(visit => {
+        const hour = new Date(visit.created_at).getHours();
+        if (!hourlyGroups[hour]) {
+          hourlyGroups[hour] = new Set();
+        }
+        hourlyGroups[hour].add(visit.session_id);
       });
 
-      // Recent visitors (last hour)
-      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-      const { data: recentData, error: recentError } = await supabase
-        .from('page_visits')
-        .select('session_id')
-        .gte('created_at', oneHourAgo.toISOString());
-
-      const recentVisitors = new Set(recentData?.map(v => v.session_id) || []).size;
+      const hourlyStats = Array.from({ length: 24 }, (_, hour) => ({
+        hour,
+        visitors: hourlyGroups[hour]?.size || 0
+      }));
 
       const stats = {
         totalVisitors: uniqueVisitors,
         recentVisitors,
-        dailyStats: dailyData || [],
-        hourlyStats: hourlyData || []
+        dailyStats,
+        hourlyStats
       };
 
+      console.log('Returning stats:', stats);
       return new Response(JSON.stringify(stats), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
