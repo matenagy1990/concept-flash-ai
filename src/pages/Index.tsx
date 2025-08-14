@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { FlashCard } from "@/components/FlashCard";
+import { VisitorStats } from "@/components/VisitorStats";
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { Brain, Sparkles, Loader2 } from "lucide-react";
 
@@ -52,6 +53,11 @@ const Index = () => {
             <p className="text-xs sm:text-sm text-muted-foreground font-medium">
               created by mate.nagy1990
             </p>
+          </div>
+          
+          {/* Visitor Analytics */}
+          <div className="mt-6">
+            <VisitorStats />
           </div>
         </div>
       </header>
