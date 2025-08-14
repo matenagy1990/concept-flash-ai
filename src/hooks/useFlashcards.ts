@@ -17,23 +17,34 @@ export const useFlashcards = () => {
   useEffect(() => {
     const fetchCards = async () => {
       try {
+        console.log('Fetching cards from Supabase...');
         const { data, error } = await supabase
           .from('AI_Glossar')
           .select('*');
 
-        if (error) throw error;
+        console.log('Supabase response:', { data, error });
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
 
         if (data) {
-          const formattedCards: FlashCard[] = data.map((item: any) => ({
-            id: item.ID?.toString() || Math.random().toString(),
-            phrase: item['Phrase/ Concept'] || '',
+          console.log('Raw data:', data);
+          const formattedCards: FlashCard[] = data.map((item: any, index: number) => ({
+            id: item.ID?.toString() || `card-${index}`,
+            phrase: item['Phrase/ Concept'] || 'No phrase',
             category: item.Category || 'Other',
-            definition: item['Definition (ENG)'] || '',
+            definition: item['Definition (ENG)'] || 'No definition',
             youtubeLink: item['Youtube Link'] || undefined
           }));
+          console.log('Formatted cards:', formattedCards);
           setCards(formattedCards);
+        } else {
+          console.log('No data returned from Supabase');
         }
       } catch (err) {
+        console.error('Error fetching cards:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch cards');
       } finally {
         setLoading(false);
