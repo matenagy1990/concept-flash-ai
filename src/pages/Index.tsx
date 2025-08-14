@@ -1,12 +1,15 @@
 import { useState, useMemo } from "react";
 import { FlashCard } from "@/components/FlashCard";
-import { VisitorStats } from "@/components/VisitorStats";
 import { useFlashcards } from "@/hooks/useFlashcards";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 import { Brain, Sparkles, Loader2 } from "lucide-react";
 
 const Index = () => {
   const { cards, loading, error } = useFlashcards();
   const [viewedCards, setViewedCards] = useState<Set<string>>(new Set());
+  
+  // Track visitor silently in background
+  useVisitorTracking();
 
   const handleCardView = (cardId: string) => {
     setViewedCards(prev => new Set([...prev, cardId]));
@@ -53,11 +56,6 @@ const Index = () => {
             <p className="text-xs sm:text-sm text-muted-foreground font-medium">
               created by mate.nagy1990
             </p>
-          </div>
-          
-          {/* Visitor Analytics */}
-          <div className="mt-6">
-            <VisitorStats />
           </div>
         </div>
       </header>
