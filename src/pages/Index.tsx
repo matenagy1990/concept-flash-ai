@@ -50,7 +50,7 @@ const Index = () => {
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-accent absolute -top-1 -right-1 animate-pulse" />
               </div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                AI Rabit Hole
+                Rabbit Hole
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground font-medium">
