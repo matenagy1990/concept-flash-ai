@@ -24,27 +24,27 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
   return (
     <Card 
       className={`
-        relative h-72 sm:h-80 cursor-pointer transition-all duration-500 ease-out
+        relative h-72 sm:h-80 cursor-pointer transition-all duration-700 ease-out
         ${isViewed 
           ? 'bg-gradient-to-br from-success/20 to-success/10 border-success/50 shadow-[var(--shadow-viewed)]' 
           : 'bg-gradient-to-br from-card to-card/80 border-border/50 shadow-[var(--shadow-card)]'
         }
-        hover:shadow-[var(--shadow-hover)] hover:scale-105 active:scale-95
-        animate-fadeIn group
+        hover:shadow-[var(--shadow-hover)] hover:scale-[1.02] active:scale-[0.98]
+        animate-fadeIn group overflow-hidden
       `}
       onClick={handleCardClick}
       style={{ perspective: '1000px' }}
     >
       <div 
         className={`
-          relative w-full h-full transition-transform duration-600 ease-in-out preserve-3d
+          relative w-full h-full transition-transform duration-700 ease-in-out preserve-3d
           ${isFlipped ? 'rotate-y-180' : ''}
         `}
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Front of card */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-lg p-6 flex flex-col justify-between"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-lg p-4 sm:p-6 flex flex-col justify-between overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="flex justify-between items-start mb-4">
@@ -62,8 +62,8 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
             )}
           </div>
           
-          <div className="flex-1 flex items-center justify-center px-2">
-            <h3 className="text-lg sm:text-xl font-bold text-center text-foreground leading-tight">
+          <div className="flex-1 flex items-center justify-center px-2 min-h-0">
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-center text-foreground leading-tight line-clamp-4 overflow-hidden">
               {card.phrase}
             </h3>
           </div>
@@ -75,7 +75,7 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
 
         {/* Back of card */}
         <div 
-          className="absolute inset-0 w-full h-full backface-hidden rounded-lg p-6 flex flex-col justify-between rotate-y-180"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-lg p-4 sm:p-6 flex flex-col justify-between rotate-y-180 overflow-hidden"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           <div className="flex justify-between items-start mb-4">
@@ -91,13 +91,15 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
             </div>
           </div>
           
-          <div className="flex-1 flex flex-col justify-center px-2">
-            <h4 className="text-base sm:text-lg font-semibold text-primary mb-3">
+          <div className="flex-1 flex flex-col justify-center px-2 min-h-0 overflow-hidden">
+            <h4 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3 line-clamp-2">
               {card.phrase}
             </h4>
-            <p className="text-foreground text-sm sm:text-base leading-relaxed">
-              {card.definition}
-            </p>
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <p className="text-foreground text-xs sm:text-sm leading-relaxed">
+                {card.definition}
+              </p>
+            </div>
           </div>
         </div>
       </div>
