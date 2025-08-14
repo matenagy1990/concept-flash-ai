@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FlashCard as FlashCardType, getCategoryColor } from "@/data/flashcards";
-import { Eye, RotateCcw } from "lucide-react";
+import { FlashCard as FlashCardType, getCategoryColor } from "@/hooks/useFlashcards";
+import { Eye, RotateCcw, CheckCircle } from "lucide-react";
 
 interface FlashCardProps {
   card: FlashCardType;
@@ -24,11 +24,13 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
   return (
     <Card 
       className={`
-        relative h-80 cursor-pointer transition-all duration-300 ease-in-out
-        bg-gradient-to-br from-card to-card/80 border-border/50
-        hover:shadow-[var(--shadow-hover)] hover:scale-105
+        relative h-72 sm:h-80 cursor-pointer transition-all duration-500 ease-out
+        ${isViewed 
+          ? 'bg-gradient-to-br from-success/20 to-success/10 border-success/50 shadow-[var(--shadow-viewed)]' 
+          : 'bg-gradient-to-br from-card to-card/80 border-border/50 shadow-[var(--shadow-card)]'
+        }
+        hover:shadow-[var(--shadow-hover)] hover:scale-105 active:scale-95
         animate-fadeIn group
-        ${isViewed ? 'ring-2 ring-primary/30' : ''}
       `}
       onClick={handleCardClick}
       style={{ perspective: '1000px' }}
@@ -48,26 +50,26 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
           <div className="flex justify-between items-start mb-4">
             <Badge 
               variant="secondary" 
-              className={`bg-${categoryColor}/20 text-${categoryColor} border-${categoryColor}/30`}
+              className={`bg-${categoryColor}/20 text-${categoryColor} border-${categoryColor}/30 text-xs`}
             >
               {card.category}
             </Badge>
             {isViewed && (
-              <div className="flex items-center gap-1 text-primary text-sm">
-                <Eye className="w-4 h-4" />
-                <span>Viewed</span>
+              <div className="flex items-center gap-1 text-success text-sm font-medium">
+                <CheckCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">Read</span>
               </div>
             )}
           </div>
           
-          <div className="flex-1 flex items-center justify-center">
-            <h3 className="text-2xl font-bold text-center text-foreground leading-tight">
+          <div className="flex-1 flex items-center justify-center px-2">
+            <h3 className="text-lg sm:text-xl font-bold text-center text-foreground leading-tight">
               {card.phrase}
             </h3>
           </div>
           
-          <div className="flex items-center justify-center text-muted-foreground text-sm">
-            <span>Click to reveal definition</span>
+          <div className="flex items-center justify-center text-muted-foreground text-xs sm:text-sm">
+            <span>Tap to reveal</span>
           </div>
         </div>
 
@@ -83,17 +85,17 @@ export const FlashCard = ({ card, isViewed, onView }: FlashCardProps) => {
             >
               {card.category}
             </Badge>
-            <div className="flex items-center gap-1 text-muted-foreground text-sm">
+            <div className="flex items-center gap-1 text-muted-foreground text-xs sm:text-sm">
               <RotateCcw className="w-4 h-4" />
-              <span>Click to flip back</span>
+              <span className="hidden sm:inline">Tap to flip back</span>
             </div>
           </div>
           
-          <div className="flex-1 flex flex-col justify-center">
-            <h4 className="text-lg font-semibold text-primary mb-3">
+          <div className="flex-1 flex flex-col justify-center px-2">
+            <h4 className="text-base sm:text-lg font-semibold text-primary mb-3">
               {card.phrase}
             </h4>
-            <p className="text-foreground leading-relaxed">
+            <p className="text-foreground text-sm sm:text-base leading-relaxed">
               {card.definition}
             </p>
           </div>

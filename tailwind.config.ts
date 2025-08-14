@@ -56,6 +56,11 @@ export default {
 				'category-ml': 'hsl(var(--category-ml))',
 				'category-data': 'hsl(var(--category-data))',
 				'category-tech': 'hsl(var(--category-tech))',
+				'category-default': 'hsl(var(--category-default))',
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
