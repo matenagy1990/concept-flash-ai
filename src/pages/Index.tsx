@@ -39,14 +39,19 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border/50 bg-card/30 backdrop-blur-lg sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className="flex items-center justify-center gap-2 sm:gap-3">
-            <div className="relative">
-              <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-accent absolute -top-1 -right-1 animate-pulse" />
+          <div className="flex flex-col items-center justify-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="relative">
+                <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-accent absolute -top-1 -right-1 animate-pulse" />
+              </div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                AI Rabit Hole
+              </h1>
             </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              AI Rabit Hole
-            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+              created by mate.nagy1990
+            </p>
           </div>
         </div>
       </header>
